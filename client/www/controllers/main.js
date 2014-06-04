@@ -82,11 +82,14 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 
 		        			if (inputLine.indexOf("</time>") > -1) {
-		        				jsonArray.push(jsonObject);
+
+								if (!(jsonObject.event.indexOf('Sports News') > -1)) {
+									if(new Date(jsonObject.timestamp * 1000).getTime() > new Date().getTime()){
+										jsonArray.push(jsonObject);
+										self.updateCalendar(jsonObject);
+		        					}
+								}
 		        				startWriting = false;
-		        				self.updateCalendar(jsonObject);
-		        				//endDate = new Date(startDate.getTime() + json[i].duration*60000);
-		        				//self.addToCalendar(title,location, notes, startDate, endDate, success, error);
 		        			}
 		        			
 		        		}

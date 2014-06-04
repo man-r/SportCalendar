@@ -23,7 +23,6 @@
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/controllers \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/index.html \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/libs/angular.js \
-/home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/libs/al.js \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/libs/hammer.js \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/libs/angular-animate.js \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www/libs/sprintf.js \
