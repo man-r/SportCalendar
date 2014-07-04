@@ -73,7 +73,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        			}
 
 		        			if (inputLine.indexOf("<time") > -1 ){
-		        				jsonObject['time'] = self.getTime(inputLine);
+		        				//jsonObject['time'] = self.getTime(inputLine);
 		        			}
 
 		         			if (inputLine.indexOf("timestamp") > -1 ){
@@ -84,10 +84,15 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        			if (inputLine.indexOf("</time>") > -1) {
 
 								if (!(jsonObject.event.indexOf('Sports News') > -1)) {
-									if(new Date(jsonObject.timestamp * 1000).getTime() > new Date().getTime()){
-										jsonArray.push(jsonObject);
-										self.updateCalendar(jsonObject);
-		        					}
+									if (!(jsonObject.chanal.indexOf('bein-sports-news') > -1)){
+										var startDate = jsonObject.timestamp;
+										var endDate = new Date(startDate.getTime() + jsonObject.duration*60000);
+
+										if (endDate.getTime() > new Date().getTime()) {
+											jsonArray.push(jsonObject);
+											self.updateCalendar(jsonObject);
+										}
+									}
 								}
 		        				startWriting = false;
 		        			}
@@ -117,13 +122,16 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 	        var title = json.event;
 	        var location = json.chanal;
 			var notes = json.notes;
-			var startDate = new Date(json.timestamp * 1000);
+			var startDate = json.timestamp;
 			var endDate = new Date(startDate.getTime() + json.duration*60000);
-				
+			
 			var success = function(message) { };
 			var error = function(message) { alert(" createEvent Error: " + message); };
 	        
-	        self.addToCalendar(title,location, notes, startDate, endDate, success, error);
+	        if (endDate.getTime() > new Date().getTime()) {
+	        	self.addToCalendar(title,location, notes, startDate, endDate, success, error);	
+	        }
+	        
         },
 		addToCalendar: function(title, location, notes, startDate, endDate, successFn, errorFn) {
 			// create an event silently (on Android < 4 an interactive dialog is shown)
@@ -193,7 +201,9 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			line = line.substring(line.indexOf("timestamp=") + 11);
 			line = line.substring(0, line.indexOf("\""));
 
-			return line;
+			var d = new Date(parseInt(line) * 1000);
+		//	d.setHours(d.getHours() + 1);
+			return d;
 		}
 	};
 

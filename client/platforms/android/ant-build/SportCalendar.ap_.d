@@ -1,15 +1,21 @@
 /home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/SportCalendar.ap_ \
- : /home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-xhdpi/icon.png \
+ : /home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-xhdpi/icon2.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-xhdpi/icon.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/res/values/strings.xml \
+/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-mdpi/icon2.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-mdpi/icon.png \
-/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable/icon.png \
-/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-ldpi/icon.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable/icon2.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-ldpi/icon2.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-hdpi/icon2.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/res/drawable-hdpi/icon.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/res/xml/config.xml \
+/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-xhdpi/icon2.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-xhdpi/icon.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-mdpi/icon2.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-mdpi/icon.png \
-/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable/icon.png \
-/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-ldpi/icon.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable/icon2.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-ldpi/icon2.png \
+/home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-hdpi/icon2.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/ant-build/res/drawable-hdpi/icon.png \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/www \
 /home/manar/gitHub/SportCalendar/client/platforms/android/assets/_where-is-www.txt \
