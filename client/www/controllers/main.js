@@ -20,7 +20,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 				// this callback will be called asynchronously
 				// when the response is available
 
-				alert('success');
+				//alert('success');
 				var lines=data.split("\n");
 				var inputLine;
 		        var startWriting = false;
@@ -103,7 +103,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        	  
 		        }
 
-		        alert('done');
+		        alert('your calendar is now updated');
 		        scope.json = jsonArray;
 		        
 		        scope.$apply();
