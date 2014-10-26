@@ -142,6 +142,11 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			}
 			window.plugins.calendar.createEvent(title,location,notes,startDate,endDate,successFn,errorFn);
 		},
+		removeFromCalendar: function(title, location, notes, startDate, endDate) {
+			var success = function(message) {};
+			var error = function(message) { alert("DeleteEvent Error: " + message); };
+			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
+		},
 
 		eventExist: function (title, location, notes, startDate, endDate) {
 			var exist = false;
@@ -208,7 +213,25 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 	};
 
 	scope.model = model;
-	scope.events = {};
+	scope.events = {
+		removeFromCalendar: function(json) {
+			
+			var title = json.event;
+	        var location = json.chanal;
+			var notes = json.notes;
+			var startDate = json.timestamp;
+			var endDate = new Date(startDate.getTime() + json.duration*60000);
+			
+			var success = function(message) {};
+			var error = function(message) { alert("DeleteEvent Error: " + message); };
+
+			//alert(JSON.stringify(json));
+			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
+		}
+	};
+	scope.test = function(item){
+		alert(item);
+	};
 }]);
 
 })();
