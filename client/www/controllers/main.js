@@ -82,6 +82,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 
 		        			if (inputLine.indexOf("</time>") > -1) {
+		        				jsonObject['endDate'] = new Date(jsonObject.timestamp.getTime() + jsonObject.duration*60000);
 
 								if (!(jsonObject.event.indexOf('Sports News') > -1)) {
 									if (!(jsonObject.chanal.indexOf('bein-sports-news') > -1)){
@@ -202,13 +203,35 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			line = line.substring(0, line.indexOf("\""));
 
 			var d = new Date(parseInt(line) * 1000);
-		//	d.setHours(d.getHours() + 1);
+			d.setHours(d.getHours() - 1);
 			return d;
 		}
 	};
 
 	scope.model = model;
-	scope.events = {};
+	scope.events = {
+		removeFromCalendar: function(index) {
+			var json = scope.json[index];
+			var title = json.event;
+	        var location = json.chanal;
+			var notes = json.notes;
+			var startDate = json.timestamp;
+			var endDate = new Date(startDate.getTime() + json.duration*60000);
+			
+			var success = function(message) {
+				scope.json.splice(index, 1);
+				scope.$apply();
+			};
+			var error = function(message) { alert("DeleteEvent Error: " + message); };
+
+			//alert(JSON.stringify(json));
+			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
+
+		}
+	};
+	scope.test = function(item){
+		alert(item);
+	};
 }]);
 
 })();

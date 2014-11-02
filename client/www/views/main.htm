@@ -1,9 +1,27 @@
 <!DOCTYPE html>
 <div id="view">
 	
-	<ul ng-repeat="item in json">
-        <li ng-repeat="(key, val) in item">
-        	{{key}}: {{val}}
-        </li>
-    </ul>
+<div ng-repeat="item in json">
+	<table style="width: 100%">
+		<tr>
+			<td>
+				<b><p class="pcenter">{{item.event}}</p></b>
+				<p class="pcenter">{{item.notes}}</p>
+			</td>
+		</tr>
+
+		<tr>
+			<td><p class="pcenter"><b>bein {{item.chanal}}: </b>{{item.timestamp | date:"hh:mma"}} - {{item.endDate | date:"hh:mma"}}</p></td>
+		</tr>
+
+		<tr>
+			<td>
+				<button class="btn btn-danger btn-block" ng-click='events.removeFromCalendar($index)'>REMOVE</button>
+			</td>
+		</tr>
+
+
+	</table>
+	<br>
+    </div>
 </div>
