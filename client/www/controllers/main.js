@@ -5,14 +5,14 @@
 var app = angular.module('app');
 
 app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, scope, model,http) {
-	doc.bind('deviceready', function(){
-		self.getMatches('http://www.en.beinsports.net/tv-guide');
-	});
+	//doc.bind('deviceready', function(){
+	//	self.getMatches('http://www.en.beinsports.net/tv-guide');
+	//});
 
 	scope.json;
 	var self = {
 		getMatches: function (url) {
-			// body...
+			console.log('getMatches');
 			http({
 				method: 'GET', 
 				url: url})
@@ -210,6 +210,10 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 	scope.model = model;
 	scope.events = {
+		getMatches: function () {
+			console.log('getMatches');
+			self.getMatches('http://www.en.beinsports.net/tv-guide');
+		},
 		removeFromCalendar: function(index) {
 			var json = scope.json[index];
 			var title = json.event;
