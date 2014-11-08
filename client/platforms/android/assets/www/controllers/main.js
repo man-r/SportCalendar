@@ -5,14 +5,16 @@
 var app = angular.module('app');
 
 app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, scope, model,http) {
-	doc.bind('deviceready', function(){
-		self.getMatches('http://www.en.beinsports.net/tv-guide');
-	});
+	//doc.bind('deviceready', function(){
+	//	self.getMatches('http://www.en.beinsports.net/tv-guide');
+	//});
 
 	scope.json;
+	var offset = new Date().getTimezoneOffset()/-60;
+	
 	var self = {
 		getMatches: function (url) {
-			// body...
+			
 			http({
 				method: 'GET', 
 				url: url})
@@ -21,6 +23,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 				// when the response is available
 
 				//alert('success');
+
 				var lines=data.split("\n");
 				var inputLine;
 		        var startWriting = false;
@@ -58,11 +61,11 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        				jsonObject['duration'] = self.getDuarion(inputLine);
 		        			}
 
-		        			if (inputLine.indexOf("<a href=\"/watch-live") > -1 ){
+		        			if (inputLine.indexOf("<a href=\"/connect/") > -1 ){
 		        				jsonObject['chanal'] = self.getChanal(inputLine);
 		        			}
 
-		        			if (inputLine.indexOf("<div>") > -1 ){
+		        			if (inputLine.indexOf("title=") > -1 ){
 		        				jsonObject['event'] = self.getEvent(inputLine);
 		        				if (inputLine.indexOf("<br/>") > -1 ){
 									jsonObject['notes'] = self.getEventNote(inputLine);
@@ -72,18 +75,11 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 								}
 		        			}
 
-		        			if (inputLine.indexOf("<time") > -1 ){
-		        				//jsonObject['time'] = self.getTime(inputLine);
-		        			}
-
 		         			if (inputLine.indexOf("timestamp") > -1 ){
 		         				jsonObject['timestamp'] = self.getTimestamp(inputLine);
-		         			}
-
-
-		        			if (inputLine.indexOf("</time>") > -1) {
-
-								if (!(jsonObject.event.indexOf('Sports News') > -1)) {
+			         			
+			         			jsonObject['endDate'] = new Date(jsonObject.timestamp.getTime() + jsonObject.duration*60000);
+			         			if (!(jsonObject.event.indexOf('Sports News') > -1)) {
 									if (!(jsonObject.chanal.indexOf('bein-sports-news') > -1)){
 										var startDate = jsonObject.timestamp;
 										var endDate = new Date(startDate.getTime() + jsonObject.duration*60000);
@@ -94,6 +90,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 										}
 									}
 								}
+								//jsonArray.push(jsonObject);
 		        				startWriting = false;
 		        			}
 		        			
@@ -105,8 +102,8 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 		        alert('your calendar is now updated');
 		        scope.json = jsonArray;
-		        
-		        scope.$apply();
+		        console.log(JSON.stringify(scope.json));
+		        //scope.$apply();
 			})
 			.error(function(data, status, headers, config) {
 				// called asynchronously if an error occurs
@@ -142,11 +139,6 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			}
 			window.plugins.calendar.createEvent(title,location,notes,startDate,endDate,successFn,errorFn);
 		},
-		removeFromCalendar: function(title, location, notes, startDate, endDate) {
-			var success = function(message) {};
-			var error = function(message) { alert("DeleteEvent Error: " + message); };
-			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
-		},
 
 		eventExist: function (title, location, notes, startDate, endDate) {
 			var exist = false;
@@ -175,7 +167,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		},
 
 		getChanal: function (line) {
-			line = line.substring(line.indexOf("watch-live/") + 11);
+			line = line.substring(line.indexOf("<a href=\"/connect/") + 18);
 			line = line.substring(0, line.indexOf("/\""));
 
 			return line;
@@ -183,10 +175,8 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 
 		getEvent: function (line) {
-			line = line.substring(line.indexOf("<div>") + 5);
-			if (line.indexOf("<br/>") > -1 ){
-				line = line.substring(0, line.indexOf("<"));
-			}
+			line = line.substring(line.indexOf("title=") + 10);
+			line = line.substring(0, line.indexOf("<"));
 			return line;
 		},
 		getEventNote: function(line) {
@@ -203,30 +193,38 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		},
 
 		getTimestamp : function (line) {
-			line = line.substring(line.indexOf("timestamp=") + 11);
-			line = line.substring(0, line.indexOf("\""));
-
-			var d = new Date(parseInt(line) * 1000);
-		//	d.setHours(d.getHours() + 1);
+			line = line.substring(line.indexOf(">") + 1);
+			line = line.substring(0, line.indexOf("<"));
+			
+			var d = new Date();
+			d.setHours(parseInt(line.substring(0,line.indexOf(':'))) + offset);
+			d.setMinutes(parseInt(line.substring(line.indexOf(':')+1)));
 			return d;
 		}
 	};
 
 	scope.model = model;
 	scope.events = {
-		removeFromCalendar: function(json) {
-			
+		getMatches: function () {
+			self.getMatches('http://www.en.beinsports.net/tv-guide');
+		},
+		removeFromCalendar: function(index) {
+			var json = scope.json[index];
 			var title = json.event;
 	        var location = json.chanal;
 			var notes = json.notes;
 			var startDate = json.timestamp;
 			var endDate = new Date(startDate.getTime() + json.duration*60000);
 			
-			var success = function(message) {};
+			var success = function(message) {
+				scope.json.splice(index, 1);
+				scope.$apply();
+			};
 			var error = function(message) { alert("DeleteEvent Error: " + message); };
 
 			//alert(JSON.stringify(json));
 			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
+
 		}
 	};
 	scope.test = function(item){
