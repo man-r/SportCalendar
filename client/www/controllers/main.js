@@ -22,15 +22,13 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 				// this callback will be called asynchronously
 				// when the response is available
 
-				//alert('success');
-
 				var lines=data.split("\n");
 				var inputLine;
 		        var startWriting = false;
 		        
 	        	var jsonObject = {};
 		        var jsonArray = [];
-		        //alert(lines.length + " lines");
+		        
 		        for(var i=0; i<lines.length; i++) {
 					//alert(lines[i]);
 					inputLine = lines[i];
@@ -45,8 +43,8 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        	}
 
 		        	if ( startWriting ) {
-		        		//alert(inputLine);
-		        		if (//(inputLine.indexOf("<a ")<0) && 
+		        		
+		        		if ( 
 		        			(inputLine.indexOf("<div class=\"live\">Live</div>") < 0) &&
 		        			(inputLine.indexOf("</a>") < 0) && 
 		        			(inputLine.indexOf("</li>") < 0) && 
@@ -90,8 +88,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 										}
 									}
 								}
-								//jsonArray.push(jsonObject);
-		        				startWriting = false;
+								startWriting = false;
 		        			}
 		        			
 		        		}
@@ -100,10 +97,10 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        	  
 		        }
 
-		        alert('your calendar is now updated');
+		        //alert('your calendar is now updated');
 		        scope.json = jsonArray;
 		        console.log(JSON.stringify(scope.json));
-		        //scope.$apply();
+		        
 			})
 			.error(function(data, status, headers, config) {
 				// called asynchronously if an error occurs
@@ -222,9 +219,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			};
 			var error = function(message) { alert("DeleteEvent Error: " + message); };
 
-			//alert(JSON.stringify(json));
 			window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
-
 		}
 	};
 	scope.test = function(item){
