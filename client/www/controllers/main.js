@@ -177,7 +177,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			return line;
 		},
 		getEventNote: function(line) {
-			line = line.substring(line.indexOf("<br/><span>") + 11);
+			line = line.substring(line.indexOf("event-category") + 16);
 			line = line.substring(0, line.indexOf("</span>"));
 			return line;
 		},
