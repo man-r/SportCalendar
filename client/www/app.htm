@@ -7,42 +7,84 @@
 		<link type="text/css" rel="stylesheet" href="style/main.css" />
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
 		<script type="text/javascript" src="cordova.js"></script>
-		<script type="text/javascript" src="libs/sprintf.js"></script>
-		<script type="text/javascript" src="libs/hammer.js"></script>
 		<script type="text/javascript" src="libs/angular.js"></script>
-		<script type="text/javascript" src="libs/angular-route.js"></script>
-		<script type="text/javascript" src="libs/angular-sanitize.js"></script>
-		<script type="text/javascript" src="libs/angular-animate.js"></script>
-		<script type="text/javascript">
-			(function () {
-
-			'use strict';
-
-				angular.module('app', ['ngRoute', 'ngSanitize', 'ngAnimate'], ['$locationProvider', '$routeProvider', function (loc, route) {
-					route
-						.when('/main', {
-							templateUrl: 'views/main.htm',
-							controller: 'Main',
-							controllerAs: 'main'
-						})
-						.otherwise({
-							redirectTo: '/main'
-						});
-
-					// loc.html5Mode(true).hashPrefix('!');
-				}]);
-				
-				angular.element(document).ready(function() {
-					angular.bootstrap(document, ['app']);
-				});
-			
-			
-
-			})();
-		</script>
-		<script type="text/javascript" src="models/main.js"></script>
+		<script type="text/javascript" src="libs/PushipNotification.js"></script>
+		<script type="text/javascript" src="libs/PushNotification.js"></script>
+		
 		<script type="text/javascript" src="controllers/main.js"></script>
+
+		<script type="text/javascript">
+			document.addEventListener("deviceready", onDeviceReady, false);
+			function onDeviceReady() {
+				//angular.element(document).ready(function() {
+			    //	angular.bootstrap(document, ['app']);
+				//});
+				var puship_id = '8h0Y3oTQ16xwUud';
+				var your_sender_id = 'nimble-sight-819';
+				Puship.PushipAppId = puship_id; // I.E.: puship_id = "h1mCVGaP9dtGnwG"
+
+				if (Puship.Common.GetCurrentOs()==Puship.OS.ANDROID){
+					var GCMCode = your_sender_id; // This is the senderID provided by Google. I.E.: "28654934133"
+					alert("HI");
+					Puship.GCM.Register(GCMCode,
+					{
+						successCallback: function (pushipresult){
+							navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+						},
+						failCallback: function (pushipresult){
+							navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+						}
+					});
+				} else if (Puship.Common.GetCurrentOs()==Puship.OS.IOS){
+					Puship.APNS.Register(
+					{
+						successCallback: function (pushipresult){
+							navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+						},
+						failCallback: function (pushipresult){
+							navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+						}
+					});
+				} else if (Puship.Common.GetCurrentOs()==Puship.OS.WP){
+					Puship.WP.Register(
+					{
+						successCallback: function (pushipresult){
+							navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+						},
+						failCallback: function (pushipresult){
+							navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+						}
+					});
+				} else {
+					Console.log("Not supported platform");
+				}
+			}
+
+		</script>
 	</head>
-	<body ng:view>
+	<body >
+		<div id="view" ng-init="events.getMatches();">
+			<div ng-repeat="item in json">
+				<table style="width: 100%">
+					<tr>
+						<td>
+							<b><p class="pcenter">{{item.event}}</p></b>
+							<p class="pcenter">{{item.notes}}</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td><p class="pcenter"><b>bein {{item.chanal}}: </b>{{item.timestamp | date:"hh:mma"}} - {{item.endDate | date:"hh:mma"}}</p></td>
+					</tr>
+
+					<tr>
+						<td>
+							<button class="btn btn-danger btn-block" ng-click='events.removeFromCalendar($index)'>REMOVE</button>
+						</td>
+					</tr>
+				</table>
+				<br>
+		    </div>
+		</div>
 	</body>
 </html>

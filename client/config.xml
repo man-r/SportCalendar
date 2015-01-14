@@ -9,6 +9,7 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
+    <access origin="http://puship.cloudapp.net" />
     <access origin="*" />
     
 </widget>

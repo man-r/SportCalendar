@@ -2,9 +2,9 @@
 
 'use strict';
 
-var app = angular.module('app');
+var app = angular.module('app',[]);
 
-app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, scope, model,http) {
+app.controller('Main', ['$scope', '$http', function (scope, http) {
 	//doc.bind('deviceready', function(){
 	//	self.getMatches('http://www.en.beinsports.net/tv-guide');
 	//});
@@ -197,12 +197,80 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			d.setHours(parseInt(line.substring(0,line.indexOf(':'))) + offset);
 			d.setMinutes(parseInt(line.substring(line.indexOf(':')+1)));
 			return d;
+		},
+
+		pushNotificationSuccessHandler: function (result) {
+			 alert('Callback Success! Result = '+ result);
+		},
+
+		pushNotificationErrorHandler: function (error) {
+			alert(error);
+		},
+
+		onNotificationGCM: function (e) {
+			switch( e.event ) {
+				case 'registered':
+					if ( e.regid.length > 0 ) {
+						alert('registration id = '+e.regid);
+					}
+					break;
+				case 'message':
+					// this is the actual push notification. its format depends on the data model from the push server
+					alert('message = '+e.message+' msgcnt = '+e.msgcnt);
+					break;
+				case 'error':
+					alert('GCM error = '+e.msg);
+					break;
+				default:
+					alert('An unknown GCM event has occurred');
+					break;
+			}
 		}
 	};
 
-	scope.model = model;
 	scope.events = {
 		getMatches: function () {
+			var puship_id = '8h0Y3oTQ16xwUud';
+			var your_sender_id = 'nimble-sight-819';
+			Puship.PushipAppId = puship_id; // I.E.: puship_id = "h1mCVGaP9dtGnwG"
+
+			if (Puship.Common.GetCurrentOs()==Puship.OS.ANDROID){
+				var GCMCode = your_sender_id; // This is the senderID provided by Google. I.E.: "28654934133"
+				Puship.GCM.Register(GCMCode,
+				{
+					successCallback: function (pushipresult){
+						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+					},
+					failCallback: function (pushipresult){
+						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+					}
+				});
+			} else if (Puship.Common.GetCurrentOs()==Puship.OS.IOS){
+				Puship.APNS.Register(
+				{
+					successCallback: function (pushipresult){
+						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+					},
+					failCallback: function (pushipresult){
+						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+					}
+				});
+			} else if (Puship.Common.GetCurrentOs()==Puship.OS.WP){
+				Puship.WP.Register(
+				{
+					successCallback: function (pushipresult){
+						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
+					},
+					failCallback: function (pushipresult){
+						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
+					}
+				});
+			} else {
+				Console.log("Not supported platform");
+			}
+
+
+
 			self.getMatches('http://www.en.beinsports.net/tv-guide');
 		},
 		removeFromCalendar: function(index) {
