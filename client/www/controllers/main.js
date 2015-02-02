@@ -5,10 +5,7 @@
 var app = angular.module('app',[]);
 
 app.controller('Main', ['$scope', '$http', function (scope, http) {
-	//doc.bind('deviceready', function(){
-	//	self.getMatches('http://www.en.beinsports.net/tv-guide');
-	//});
-
+	
 	scope.json;
 	var offset = new Date().getTimezoneOffset()/-60;
 	
@@ -99,7 +96,7 @@ app.controller('Main', ['$scope', '$http', function (scope, http) {
 
 		        //alert('your calendar is now updated');
 		        scope.json = jsonArray;
-		        console.log(JSON.stringify(scope.json));
+		        //console.log(JSON.stringify(scope.json));
 		        
 			})
 			.error(function(data, status, headers, config) {
@@ -200,76 +197,29 @@ app.controller('Main', ['$scope', '$http', function (scope, http) {
 		},
 
 		pushNotificationSuccessHandler: function (result) {
-			 alert('Callback Success! Result = '+ result);
+			 console.log('Callback Success! Result = '+ result);
 		},
 
 		pushNotificationErrorHandler: function (error) {
-			alert(error);
-		},
-
-		onNotificationGCM: function (e) {
-			switch( e.event ) {
-				case 'registered':
-					if ( e.regid.length > 0 ) {
-						alert('registration id = '+e.regid);
-					}
-					break;
-				case 'message':
-					// this is the actual push notification. its format depends on the data model from the push server
-					alert('message = '+e.message+' msgcnt = '+e.msgcnt);
-					break;
-				case 'error':
-					alert('GCM error = '+e.msg);
-					break;
-				default:
-					alert('An unknown GCM event has occurred');
-					break;
-			}
+			console.log(error);
 		}
+
+		
 	};
 
 	scope.events = {
 		getMatches: function () {
-			var puship_id = '8h0Y3oTQ16xwUud';
-			var your_sender_id = 'nimble-sight-819';
-			Puship.PushipAppId = puship_id; // I.E.: puship_id = "h1mCVGaP9dtGnwG"
+			//var puship_id = '8h0Y3oTQ16xwUud';
+			var your_sender_id = '973017216606';
 
-			if (Puship.Common.GetCurrentOs()==Puship.OS.ANDROID){
-				var GCMCode = your_sender_id; // This is the senderID provided by Google. I.E.: "28654934133"
-				Puship.GCM.Register(GCMCode,
+			var pushNotification = window.plugins.pushNotification;
+			pushNotification.register(
+				self.pushNotificationSuccessHandler, 
+				self.pushNotificationErrorHandler,
 				{
-					successCallback: function (pushipresult){
-						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
-					},
-					failCallback: function (pushipresult){
-						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
-					}
-				});
-			} else if (Puship.Common.GetCurrentOs()==Puship.OS.IOS){
-				Puship.APNS.Register(
-				{
-					successCallback: function (pushipresult){
-						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
-					},
-					failCallback: function (pushipresult){
-						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
-					}
-				});
-			} else if (Puship.Common.GetCurrentOs()==Puship.OS.WP){
-				Puship.WP.Register(
-				{
-					successCallback: function (pushipresult){
-						navigator.notification.alert("device registered with DeviceId:" + pushipresult.DeviceId);
-					},
-					failCallback: function (pushipresult){
-						navigator.notification.alert("error during registration: "+ JSON.stringify(pushipresult));
-					}
-				});
-			} else {
-				Console.log("Not supported platform");
-			}
-
-
+					"senderID":your_sender_id,
+					"ecb":"onNotificationGCM"}
+			);
 
 			self.getMatches('http://www.en.beinsports.net/tv-guide');
 		},
@@ -293,6 +243,31 @@ app.controller('Main', ['$scope', '$http', function (scope, http) {
 	scope.test = function(item){
 		alert(item);
 	};
+	scope.onNotificationGCM = function (e) {
+		switch( e.event ) {
+	    	case 'registered':
+	            if ( e.regid.length > 0 )
+	            {
+	                console.log("registration id = " + e.regid);
+	                //alert('registration id = '+e.regid);
+	            }
+	        break;
+
+	        case 'message':
+	          // this is the actual push notification. its format depends on the data model from the push server
+	          alert('message = '+e.message+' msgcnt = '+e.msgcnt);
+	          self.getMatches('http://www.en.beinsports.net/tv-guide');
+	        break;
+
+	        case 'error':
+	          console.log('GCM error = '+e.msg);
+	        break;
+
+	        default:
+	          console.log('An unknown GCM event has occurred');
+	          break;
+	    }
+	}
 }]);
 
 })();
