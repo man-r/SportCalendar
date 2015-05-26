@@ -26,7 +26,8 @@
                             "xml": "<uses-permission android:name=\"android.permission.WRITE_CALENDAR\" />",
                             "count": 1
                         }
-                    ]
+                    ],
+                    "/manifest/application": []
                 }
             }
         }
