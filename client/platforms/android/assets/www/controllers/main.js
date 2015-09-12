@@ -12,6 +12,50 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 	scope.json;
 	var offset = new Date().getTimezoneOffset()/-60;
 	
+	var kooora = {
+		getTimestamp : function (inputLine) {
+			var line = inputLine.substring(inputLine.indexOf(":") - 2);
+			line = line.substring(0, 5);
+			return line;
+		},
+
+		getNote: function (inputLine) {
+			var note = inputLine.substring(inputLine.indexOf(",\"") + 2);
+			if (note.indexOf("<span") > -1 ) {
+				note = note.substring(0, note.indexOf("<span"));
+			} else {
+				note = note.substring(0, note.indexOf("\""));
+			}
+			
+			console.log(note);
+			return note;
+		},
+		getEvent: function(inputLine) {
+			
+			var event = inputLine.substring(inputLine.indexOf(',') + 1);
+			
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			
+			var team1 = event.substring(event.indexOf('"') + 1, event.indexOf('",'));
+
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			event = event.substring(event.indexOf(',') + 1);
+			
+			var team2 = event.substring(event.indexOf('"') + 1, event.indexOf('",'));
+
+			event = team1 + ' vs ' + team2;
+			return event;
+		}
+	}
+
 	var self = {
 		getMatches: function (url) {
 			
@@ -24,77 +68,29 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 				var lines=data.split("\n");
 				var inputLine;
-		        var startWriting = false;
 		        
 	        	var jsonObject = {};
 		        var jsonArray = [];
+		        var note;
+
 		        
 		        for(var i=0; i<lines.length; i++) {
 					//alert(lines[i]);
 					inputLine = lines[i];
-	    			if (inputLine.indexOf("data-live=\"1\"") > -1){
-		        		jsonObject = {};
-		        		startWriting = true;
-		        		
-		        	}
-		        	else if (inputLine.indexOf("data-live=\"0\"") > -1){
-		        		startWriting = false;
-		        	
-		        	}
 
-		        	if ( startWriting ) {
-		        		
-		        		if ( 
-		        			(inputLine.indexOf("<div class=\"live\">Live</div>") < 0) &&
-		        			(inputLine.indexOf("</a>") < 0) && 
-		        			(inputLine.indexOf("</li>") < 0) && 
-		        			(inputLine.indexOf("</ul>") < 0) 
-		        			) {
-		        			
-		        			if (inputLine.indexOf("data-event=") > -1 ){
-		        				jsonObject['id'] = self.getID(inputLine);
-		        			}
-
-		        			if (inputLine.indexOf("data-duration=") > -1 ){
-		        				jsonObject['duration'] = self.getDuarion(inputLine);
-		        			}
-
-		        			if (inputLine.indexOf("<a href=\"/connect/") > -1 ){
-		        				jsonObject['chanal'] = self.getChanal(inputLine);
-		        			}
-
-		        			if (inputLine.indexOf("title=") > -1 ){
-		        				jsonObject['event'] = self.getEvent(inputLine);
-		        				if (inputLine.indexOf("<br/>") > -1 ){
-									jsonObject['notes'] = self.getEventNote(inputLine);
-								}
-								else {
-									jsonObject['notes'] = '';
-								}
-		        			}
-
-		         			if (inputLine.indexOf("timestamp") > -1 ){
-		         				jsonObject['timestamp'] = self.getTimestamp(inputLine);
-			         			
-			         			jsonObject['endDate'] = new Date(jsonObject.timestamp.getTime() + jsonObject.duration*60000);
-			         			if (!(jsonObject.event.indexOf('Sports News') > -1)) {
-									if (!(jsonObject.chanal.indexOf('bein-sports-news') > -1)){
-										var startDate = jsonObject.timestamp;
-										var endDate = new Date(startDate.getTime() + jsonObject.duration*60000);
-
-										if (endDate.getTime() > new Date().getTime()) {
-											jsonArray.push(jsonObject);
-											self.updateCalendar(jsonObject);
-										}
-									}
-								}
-								startWriting = false;
-		        			}
-		        			
-		        		}
-		        		
-		        	}
-		        	  
+					if (inputLine.indexOf("lg(") > -1 ) {
+						note = kooora.getNote(inputLine);
+					}
+					if (inputLine.indexOf("mc(") > -1 ) {
+						jsonObject = {};
+												
+						jsonObject['timestamp'] = kooora.getTimestamp(inputLine);
+						jsonObject['Chanal'] = note;
+						jsonObject['event'] = kooora.getEvent(inputLine);
+						jsonObject['notes'] = note;
+						jsonArray.push(jsonObject);
+						self.updateCalendar(jsonObject);
+					}
 		        }
 
 		        //alert('your calendar is now updated');
@@ -113,15 +109,19 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			if (json.event.indexOf('Sports News') > -1) {
 				return;
 			}
+			var d = new Date();
 	        var title = json.event;
-	        var location = json.chanal;
+	        var location = json.notes;
 			var notes = json.notes;
-			var startDate = json.timestamp;
-			var endDate = new Date(startDate.getTime() + json.duration*60000);
+			var startDate = new Date();
+			startDate.setHours(json.timestamp.substring(0, json.timestamp.indexOf(":")) + 3);
+			startDate.setMinutes(json.timestamp.substring(json.timestamp.indexOf(":")+1));
+			var endDate = new Date(startDate.getTime() + 105*60000);
 			
 			var success = function(message) { };
 			var error = function(message) { alert(" createEvent Error: " + message); };
 	        
+	        console.log(title + location + notes + startDate + endDate);
 	        if (endDate.getTime() > new Date().getTime()) {
 	        	self.addToCalendar(title,location, notes, startDate, endDate, success, error);	
 	        }
@@ -155,55 +155,15 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 			line = line.substring(0, line.indexOf("\""));
 
 			return line;
-		},
-
-		getID: function (line) {
-			line = line.substring(line.indexOf("data-event=") + 12);
-			line = line.substring(0, line.indexOf('"'));
-			return line;
-		},
-
-		getChanal: function (line) {
-			line = line.substring(line.indexOf("<a href=\"/connect/") + 18);
-			line = line.substring(0, line.indexOf("/\""));
-
-			return line;
-		},
-
-
-		getEvent: function (line) {
-			line = line.substring(line.indexOf("title=") + 10);
-			line = line.substring(0, line.indexOf("<"));
-			return line;
-		},
-		getEventNote: function(line) {
-			line = line.substring(line.indexOf("event-category") + 16);
-			line = line.substring(0, line.indexOf("</span>"));
-			return line;
-		},
-
-		getTime : function (line) {
-			line = line.substring(line.indexOf("datetime=") + 10);
-			line = line.substring(0, line.indexOf("\""));
-
-			return line;
-		},
-
-		getTimestamp : function (line) {
-			line = line.substring(line.indexOf(">") + 1);
-			line = line.substring(0, line.indexOf("<"));
-			
-			var d = new Date();
-			d.setHours(parseInt(line.substring(0,line.indexOf(':'))) + offset);
-			d.setMinutes(parseInt(line.substring(line.indexOf(':')+1)));
-			return d;
 		}
 	};
 
 	scope.model = model;
 	scope.events = {
 		getMatches: function () {
-			self.getMatches('http://www.en.beinsports.net/tv-guide');
+			//self.getMatches('http://www.en.beinsports.net/tv-guide');
+			self.getMatches('http://www.kooora.com/?region=-1&area=0');
+			//self.getMatches('http://www.goalzz.com/?region=-1&area=0');
 		},
 		removeFromCalendar: function(index) {
 			var json = scope.json[index];
