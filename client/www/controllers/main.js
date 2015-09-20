@@ -56,6 +56,83 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		}
 	}
 
+	var mKooora = {
+		getMatches: function (url) {
+			
+			http({
+				method: 'GET', 
+				url: url})
+			.success(function(data, status, headers, config) {
+				// this callback will be called asynchronously
+				// when the response is available
+
+				data = data.substring(data.indexOf("match_box"));
+				data = data.substring(0, data.indexOf("var video_list"));
+				var lines=data.split("\n");
+				var inputLine;
+		        
+	        	var jsonObject = {};
+		        var jsonArray = [];
+		        var note;
+
+
+		        console.log(data);
+		        
+		        for(var i=1; i + 2 < lines.length ; i++) {
+					//alert(lines[i]);
+					jsonObject = {};
+					inputLine = lines[i];
+
+					console.log(inputLine);
+					
+					
+					var time = 	inputLine.substring(inputLine.indexOf('#') + 1, inputLine.indexOf('",'));
+					
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					
+					var lege = inputLine.substring(inputLine.indexOf('"') + 1, inputLine.indexOf('",'));
+
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+
+					var team1 = inputLine.substring(inputLine.indexOf('"') + 1, inputLine.indexOf('",'));
+
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					inputLine = inputLine.substring(inputLine.indexOf(',') + 1);
+					
+					var team2 = inputLine.substring(inputLine.indexOf('"') + 1, inputLine.indexOf('",'));
+
+					console.log(team1 + " vs. " + team2);
+					console.log(lege);
+					console.log(new Date(time*1000));
+
+					jsonObject['event'] = team1 + " vs. " + team2;
+					jsonObject['notes'] = lege;
+					jsonObject['timestamp'] = new Date(time*1000);
+
+					if (new Date() <= new Date(time*1000)) {
+						jsonArray.push(jsonObject);
+					};
+					
+		        }
+
+		        //alert('your calendar is now updated');
+		        scope.json = jsonArray;
+		        console.log(JSON.stringify(scope.json));
+		        
+			})
+			.error(function(data, status, headers, config) {
+				// called asynchronously if an error occurs
+				// or server returns response with an error status.
+				alert('error: \n' +data);
+			});
+		}
+	}
 	var self = {
 		getMatches: function (url) {
 			
@@ -73,6 +150,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 		        var jsonArray = [];
 		        var note;
 
+		        console.log(data);
 		        
 		        for(var i=0; i<lines.length; i++) {
 					//alert(lines[i]);
@@ -162,7 +240,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 	scope.events = {
 		getMatches: function () {
 			//self.getMatches('http://www.en.beinsports.net/tv-guide');
-			self.getMatches('http://www.kooora.com/?region=-1&area=0');
+			mKooora.getMatches('http://m.kooora.com');
 			//self.getMatches('http://www.goalzz.com/?region=-1&area=0');
 		},
 		removeFromCalendar: function(index) {

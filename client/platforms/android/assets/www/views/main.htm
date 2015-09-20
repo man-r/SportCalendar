@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <div id="view" ng-init="events.getMatches();">
 	
-<div ng-repeat="item in json">
+<div ng-repeat="item in json track by $index">
 	<table style="width: 100%">
 		<tr>
 			<td>
