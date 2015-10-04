@@ -57,6 +57,33 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 	}
 
 	var mKooora = {
+		updateCalendar: function(json) {
+			
+			var d = new Date();
+	        var title = json.event;
+	        var location = json.notes;
+			var notes = json.notes;
+			var startDate = json.timestamp;
+			var endDate = new Date(startDate.getTime() + 105*60000);
+			
+			var success = function(message) { };
+			var error = function(message) { alert(" createEvent Error: " + message); };
+	        
+	        console.log(title + location + notes + startDate + endDate);
+	        if (endDate.getTime() > new Date().getTime()) {
+	        	self.addToCalendar(title,location, notes, startDate, endDate, success, error);	
+	        }
+	        
+        },
+		addToCalendar: function(title, location, notes, startDate, endDate, successFn, errorFn) {
+			// create an event silently (on Android < 4 an interactive dialog is shown)
+			if (self.eventExist(title, location, notes, startDate, endDate)){
+				var success = function(message) {};
+				var error = function(message) { alert("DeleteEvent Error: " + message); };
+				window.plugins.calendar.deleteEvent(title, location, notes, startDate, endDate,success,error);
+			}
+			window.plugins.calendar.createEvent(title,location,notes,startDate,endDate,successFn,errorFn);
+		},
 		getMatches: function (url) {
 			
 			http({
@@ -117,6 +144,7 @@ app.controller('Main', ['$document', '$scope', 'main','$http', function (doc, sc
 
 					if (new Date() <= new Date(time*1000)) {
 						jsonArray.push(jsonObject);
+						mKooora.updateCalendar(jsonObject);
 					};
 					
 		        }
