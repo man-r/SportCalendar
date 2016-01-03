@@ -20,12 +20,44 @@ public class MyMainActivity extends Activity
         textView = new TextView(this);
         textView.setText("hello!");
         try {
-          textView.setText(getUrlSource("http://m.kooora.com").toString());
+          textView.setText(fromURL("http://m.kooora.com").toString());
         } catch (Exception e) {
           textView.setText(e.toString());
         }
 
         setContentView(textView);
+    }
+
+    static ArrayList<String> fromURL(String surl) {
+      URL url;
+      InputStream is = null;
+      BufferedReader br;
+      String line;
+      ArrayList<String> lines = new ArrayList<String>();
+
+      try {
+        url = new URL(surl);
+        is = url.openStream();  // throws an IOException
+        br = new BufferedReader(new InputStreamReader(is));
+
+        while ((line = br.readLine()) != null) {
+          if (lines.size() > 0 || line.contains("match_box")) {
+            lines.add(line);
+          }
+        }
+      } catch (MalformedURLException mue) {
+        mue.printStackTrace();
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      } finally {
+        try {
+          if (is != null) is.close();
+        } catch (IOException ioe) {
+            // nothing to see here
+        }
+      }
+
+      return lines;
     }
 
     static ArrayList<String> getUrlSource(String url) throws IOException {
