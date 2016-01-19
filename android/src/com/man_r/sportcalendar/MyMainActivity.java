@@ -3,6 +3,7 @@ package com.man_r.sportcalendar;
 import android.widget.TextView;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
 import android.os.Bundle;
@@ -71,7 +72,16 @@ public class MyMainActivity extends Activity {
         Log.d("SC", "");
         Log.d("SC", "");
 
-        addEvent(team1 + " vs. " + team2, lege, Long.parseLong(time)*1000);
+        String title = team1 + " vs. " + team2;
+        long startTime = Long.parseLong(time)*1000;
+        long endTime = Long.parseLong(time)*1000;
+        String description = lege;
+        String location = "";
+        Long firstReminderMinutes = new Long(60);
+        Long secondReminderMinutes = new Long(30);
+
+        //addEvent(team1 + " vs. " + team2, lege, Long.parseLong(time)*1000);
+        createEvent(Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
       }
   }
 
@@ -98,6 +108,49 @@ public class MyMainActivity extends Activity {
   public boolean onCreateOptionsMenu(Menu menu) {
       getMenuInflater().inflate(R.menu.main, menu);
       return true;
+  }
+
+  public boolean createEvent(Uri eventsUri, String title, long startTime, long endTime, String description,
+                             String location, Long firstReminderMinutes, Long secondReminderMinutes) {
+    try {
+      ContentResolver cr = getContentResolver();
+      ContentValues values = new ContentValues();
+      final boolean allDayEvent = false;
+      values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+      values.put(Events.ALL_DAY, allDayEvent ? 1 : 0);
+      values.put(Events.DTSTART, allDayEvent ? startTime+(1000*60*60*24) : startTime);
+      values.put(Events.DTEND, endTime);
+      values.put(Events.TITLE, title);
+      values.put(Events.DESCRIPTION, description);
+      values.put(Events.HAS_ALARM, 1);
+      values.put(Events.CALENDAR_ID, 1);
+      values.put(Events.EVENT_LOCATION, location);
+      Uri uri = cr.insert(eventsUri, values);
+
+      // TODO ?
+      //getActiveCalendarIds();
+
+      // if (firstReminderMinutes != null) {
+      //   ContentValues reminderValues = new ContentValues();
+      //   reminderValues.put("event_id", Long.parseLong(uri.getLastPathSegment()));
+      //   reminderValues.put("minutes", firstReminderMinutes);
+      //   reminderValues.put("method", 1);
+      //   cr.insert(Uri.parse(CONTENT_PROVIDER + CONTENT_PROVIDER_PATH_REMINDERS), reminderValues);
+      // }
+      //
+      // if (secondReminderMinutes != null) {
+      //   ContentValues reminderValues = new ContentValues();
+      //   reminderValues.put("event_id", Long.parseLong(uri.getLastPathSegment()));
+      //   reminderValues.put("minutes", secondReminderMinutes);
+      //   reminderValues.put("method", 1);
+      //   cr.insert(Uri.parse(CONTENT_PROVIDER + CONTENT_PROVIDER_PATH_REMINDERS), reminderValues);
+      // }
+    } catch (Exception e) {
+      Log.e("Calendar", e.getMessage(), e);
+      return false;
+    }
+
+    return true;
   }
 
   // Menu options to set and cancel the alarm.
