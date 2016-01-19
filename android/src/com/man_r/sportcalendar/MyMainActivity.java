@@ -1,11 +1,12 @@
 package com.man_r.sportcalendar;
 
-import android.app.Activity;
-import android.os.Bundle;
 import android.widget.TextView;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract.Events;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -18,8 +19,7 @@ import java.io.BufferedReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class MyMainActivity extends Activity
-{
+public class MyMainActivity extends Activity {
   SampleAlarmReceiver alarm = new SampleAlarmReceiver();
 
   @Override
@@ -70,10 +70,30 @@ public class MyMainActivity extends Activity
         Log.d("SC", "timestamp = " + time + "(" + new Date(Long.parseLong(time)*1000) + ")");
         Log.d("SC", "");
         Log.d("SC", "");
+
+        addEvent(team1 + " vs. " + team2, lege, Long.parseLong(time)*1000);
       }
   }
 
+  private void addEvent(String event, String notes, long startTime) {
+    long calId = 1;
 
+    ContentValues values = new ContentValues();
+    values.put(Events.DTSTART, startTime);
+    values.put(Events.DTEND, startTime + 105*60000);
+    values.put(Events.TITLE, event);
+    //values.put(Events.EVENT_LOCATION, "Münster");
+    values.put(Events.CALENDAR_ID, calId);
+    values.put(Events.DESCRIPTION,notes);
+
+    // reasonable defaults exist:
+    values.put(Events.ACCESS_LEVEL, Events.ACCESS_PRIVATE);
+    values.put(Events.SELF_ATTENDEE_STATUS, Events.STATUS_CONFIRMED);
+    values.put(Events.AVAILABILITY, Events.AVAILABILITY_BUSY);
+
+    Uri uri = getContentResolver().insert(Events.CONTENT_URI, values);
+    //long eventId = new Long(uri.getLastPathSegment());
+  }
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
       getMenuInflater().inflate(R.menu.main, menu);
