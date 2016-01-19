@@ -9,6 +9,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.util.Log;
+
+import java.util.*;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.net.URL;
+import java.net.URLConnection;
+
 public class MyMainActivity extends Activity
 {
   SampleAlarmReceiver alarm = new SampleAlarmReceiver();
@@ -17,7 +26,53 @@ public class MyMainActivity extends Activity
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
+
+      StringBuilder a = new StringBuilder();
+
+      ArrayList<String> lines = new ArrayList<String>();
+      try {
+        lines = getUrlSource("http://m.kooora.com");
+      } catch (Exception e) {
+
+      }
+
+      for (int i = 0; i < lines.size(); i++) {
+        //JSONObject jsonObject = new JSONObject();
+        String inputLine = lines.get(i);
+        if (inputLine.equals("\"\");")) {
+          break;
+        }
+        //System.out.println(inputLine);
+        String time = 	inputLine.substring(inputLine.indexOf("#") + 1, inputLine.indexOf("\","));
+
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+
+        String lege = inputLine.substring(inputLine.indexOf("\"") + 1, inputLine.indexOf("\","));
+
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+
+        String team1 = inputLine.substring(inputLine.indexOf("\"") + 1, inputLine.indexOf("\","));
+
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+        inputLine = inputLine.substring(inputLine.indexOf(",") + 1);
+
+        String team2 = inputLine.substring(inputLine.indexOf("\"") + 1, inputLine.indexOf("\","));
+
+        //a.append(inputLine);
+        Log.d("SC", "event = " + team1 + " vs. " + team2);
+        Log.d("SC", "notes = " + lege);
+        Log.d("SC", "timestamp = " + time + "(" + new Date(Long.parseLong(time)*1000) + ")");
+        Log.d("SC", "");
+        Log.d("SC", "");
+      }
   }
+
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -39,5 +94,33 @@ public class MyMainActivity extends Activity
               return true;
       }
       return false;
+  }
+
+  private static ArrayList<String> getUrlSource(String url) throws IOException {
+    URL mURL = new URL(url);
+    URLConnection mURLConnection = mURL.openConnection();
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(mURLConnection.getInputStream(), "UTF-8"));
+    String inputLine;
+
+    ArrayList<String> lines = new ArrayList<String>();
+
+    boolean start = false;
+    while ((inputLine = in.readLine()) != null) {
+      if (inputLine.contains("var video_list")) {
+        break;
+      }
+      if (start) {
+        lines.add(inputLine);
+      }
+
+      if (inputLine.contains("match_box")) {
+        start  = true;
+      }
+
+    }
+    in.close();
+
+    return lines;
   }
 }
