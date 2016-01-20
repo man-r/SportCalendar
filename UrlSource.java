@@ -55,7 +55,7 @@ class UrlSource {
     URL mURL = new URL(url);
     URLConnection mURLConnection = mURL.openConnection();
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(mURLConnection.getInputStream(), "UTF-8"));
+    BufferedReader in = new BufferedReader(new InputStreamReader(mURLConnection.getInputStream(), "cp1256"));
     String inputLine;
 
     StringBuilder a = new StringBuilder();

@@ -42,6 +42,7 @@ public class SampleSchedulingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+      Manar.getMatches(this);
         // BEGIN_INCLUDE(service_onhandle)
         // The URL from which to fetch content.
         String urlString = URL;
