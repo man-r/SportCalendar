@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.provider.CalendarContract.Events;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 public final class Manar {
@@ -23,8 +25,9 @@ public final class Manar {
 
   }
 
-  public static void getMatches(Context act) {
-    StringBuilder a = new StringBuilder();
+  public static boolean getMatches(Context act) {
+		boolean found = false;
+		StringBuilder a = new StringBuilder();
 
     ArrayList<String> lines = new ArrayList<String>();
     try {
@@ -77,8 +80,10 @@ public final class Manar {
       Long secondReminderMinutes = new Long(30);
 
       //addEvent(team1 + " vs. " + team2, lege, Long.parseLong(time)*1000);
-      addEvent(act, Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
+      found = addEvent(act, Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
     }
+
+		return found;
   }
 
   public static ArrayList<String> getUrlSource(String url) throws IOException {
@@ -110,34 +115,43 @@ public final class Manar {
   }
 
   public static boolean addEvent(Context act, Uri eventsUri, String title, long startTime, long endTime, String description, String location, Long firstReminderMinutes, Long secondReminderMinutes) {
-    // if (!eventAvailable(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes)) {
-    //   createEvent(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
-    // }
-    createEvent(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
+    if (!eventAvailable(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes)) {
+			createEvent(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
+    }
     return true;
   }
 
   public static boolean eventAvailable(Context act, Uri eventsUri, String title, long startTime, long endTime, String description, String location, Long firstReminderMinutes, Long secondReminderMinutes) {
-    // String[] projection = {
-    //     this.getKey(KeyIndex.INSTANCES_ID),
-    //     this.getKey(KeyIndex.INSTANCES_EVENT_ID),
-    //     this.getKey(KeyIndex.INSTANCES_BEGIN),
-    //     this.getKey(KeyIndex.INSTANCES_END)
-    // };
+    Log.d("Calendar", "eventAvailable:" + startTime + " - " + endTime);
+		String[] projection = {
+        Events.TITLE,
+				Events.DESCRIPTION,
+				Events.DTSTART,
+				Events.DTEND
+    };
 
     // Run query
     Cursor cur = null;
     ContentResolver cr = act.getContentResolver();
-    String selection = "((" + Events.TITLE + " = ?) AND ("
-                            + Events.DESCRIPTION + " = ?))";
+    String selection = "((" + Events.TITLE + " = ?) AND (" + Events.DESCRIPTION + " = ?))";
 
     String[] selectionArgs = new String[] {title, description};
 
     // Submit the query and get a Cursor object back.
     cur = cr.query(eventsUri, null, selection, selectionArgs, null);
 
-    if (cur.getCount() > 0) {
-      return true;
+		Log.d("Calendar", DatabaseUtils.dumpCursorToString(cur));
+
+    while (cur.moveToNext()) {
+			if (cur.getString(cur.getColumnIndex("title")).equals(title) &&
+					cur.getString(cur.getColumnIndex("description")).equals(description) &&
+					cur.getLong(cur.getColumnIndex("dtstart")) == startTime &&
+					cur.getLong(cur.getColumnIndex("dtend")) == endTime) {
+
+						Log.d("Calendar", "found");
+				return true;
+			}
+
     }
     return false;
   }
