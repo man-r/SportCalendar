@@ -34,11 +34,16 @@ public class SampleSchedulingService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-      if (Manar.getMatches(this)) {
-        sendNotification("تم اضافة مباريات اليوم");
+      if(Manar.isNetworkAvailable(this)) {
+        if (Manar.getMatches(this)) {
+          sendNotification("تم اضافة مباريات اليوم");
+        } else {
+          sendNotification("لا توجد مباريات اليوم");
+        }
       } else {
-        sendNotification("لا توجد مباريات اليوم");
+        sendNotification("لا يوجد اتصال بالانترنت");
       }
+
 
       SampleAlarmReceiver.completeWakefulIntent(intent);
     }

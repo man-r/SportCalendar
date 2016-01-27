@@ -5,6 +5,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.CalendarContract.Events;
 
@@ -173,24 +175,6 @@ public final class Manar {
       values.put(Events.EVENT_LOCATION, location);
       Uri uri = cr.insert(eventsUri, values);
 
-      // TODO ?
-      //getActiveCalendarIds();
-
-      // if (firstReminderMinutes != null) {
-      //   ContentValues reminderValues = new ContentValues();
-      //   reminderValues.put("event_id", Long.parseLong(uri.getLastPathSegment()));
-      //   reminderValues.put("minutes", firstReminderMinutes);
-      //   reminderValues.put("method", 1);
-      //   cr.insert(Uri.parse(CONTENT_PROVIDER + CONTENT_PROVIDER_PATH_REMINDERS), reminderValues);
-      // }
-      //
-      // if (secondReminderMinutes != null) {
-      //   ContentValues reminderValues = new ContentValues();
-      //   reminderValues.put("event_id", Long.parseLong(uri.getLastPathSegment()));
-      //   reminderValues.put("minutes", secondReminderMinutes);
-      //   reminderValues.put("method", 1);
-      //   cr.insert(Uri.parse(CONTENT_PROVIDER + CONTENT_PROVIDER_PATH_REMINDERS), reminderValues);
-      // }
     } catch (Exception e) {
       Log.e("Calendar", e.getMessage(), e);
       return false;
@@ -198,4 +182,10 @@ public final class Manar {
 
     return true;
   }
+
+	public static boolean isNetworkAvailable(Context context) {
+		ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+}
 }

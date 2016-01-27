@@ -29,7 +29,9 @@ public class MyMainActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
       alarm.setAlarm(this);
-      Manar.getMatches(this);
+      if(Manar.isNetworkAvailable(getApplicationContext())) {
+        Manar.getMatches(this);
+      }
       Toast.makeText(getApplicationContext(), "alarm started!", Toast.LENGTH_SHORT).show();
   }
 
