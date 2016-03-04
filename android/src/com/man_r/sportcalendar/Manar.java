@@ -3,12 +3,13 @@ package com.man_r.sportcalendar;
 import android.content.Context;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract;
 
 import android.util.Log;
 
@@ -23,11 +24,16 @@ import java.util.Date;
 import java.util.TimeZone;
 public final class Manar {
 
+	public static final String PREFS_NAME = "MyPrefsFile";
+	public static SharedPreferences settings;
+
 	private Manar () {
 
   }
 
   public static boolean getMatches(Context act) {
+		settings = act.getSharedPreferences(PREFS_NAME, 0);
+
 		boolean found = false;
 		StringBuilder a = new StringBuilder();
 
@@ -82,7 +88,7 @@ public final class Manar {
       Long secondReminderMinutes = new Long(30);
 
       //addEvent(team1 + " vs. " + team2, lege, Long.parseLong(time)*1000);
-      found = addEvent(act, Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
+      found = addEvent(act, CalendarContract.Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
     }
 
 		return found;
@@ -126,16 +132,16 @@ public final class Manar {
   public static boolean eventAvailable(Context act, Uri eventsUri, String title, long startTime, long endTime, String description, String location, Long firstReminderMinutes, Long secondReminderMinutes) {
     Log.d("Calendar", "eventAvailable:" + startTime + " - " + endTime);
 		String[] projection = {
-        Events.TITLE,
-				Events.DESCRIPTION,
-				Events.DTSTART,
-				Events.DTEND
+        CalendarContract.Events.TITLE,
+				CalendarContract.Events.DESCRIPTION,
+				CalendarContract.Events.DTSTART,
+				CalendarContract.Events.DTEND
     };
 
     // Run query
     Cursor cur = null;
     ContentResolver cr = act.getContentResolver();
-    String selection = "((" + Events.TITLE + " = ?) AND (" + Events.DESCRIPTION + " = ?))";
+    String selection = "((" + CalendarContract.Events.TITLE + " = ?) AND (" + CalendarContract.Events.DESCRIPTION + " = ?))";
 
     String[] selectionArgs = new String[] {title, description};
 
@@ -164,16 +170,30 @@ public final class Manar {
       ContentResolver cr = act.getContentResolver();
       ContentValues values = new ContentValues();
       final boolean allDayEvent = false;
-      values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
-      values.put(Events.ALL_DAY, allDayEvent ? 1 : 0);
-      values.put(Events.DTSTART, allDayEvent ? startTime+(1000*60*60*24) : startTime);
-      values.put(Events.DTEND, endTime);
-      values.put(Events.TITLE, title);
-      values.put(Events.DESCRIPTION, description);
-      values.put(Events.HAS_ALARM, 1);
-      values.put(Events.CALENDAR_ID, 1);
-      values.put(Events.EVENT_LOCATION, location);
+      values.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+      values.put(CalendarContract.Events.ALL_DAY, allDayEvent ? 1 : 0);
+      values.put(CalendarContract.Events.DTSTART, allDayEvent ? startTime+(1000*60*60*24) : startTime);
+      values.put(CalendarContract.Events.DTEND, endTime);
+      values.put(CalendarContract.Events.TITLE, title);
+      values.put(CalendarContract.Events.DESCRIPTION, description);
+      values.put(CalendarContract.Events.HAS_ALARM, 1);
+      values.put(CalendarContract.Events.CALENDAR_ID, 1);
+      values.put(CalendarContract.Events.EVENT_LOCATION, location);
       Uri uri = cr.insert(eventsUri, values);
+
+			// get the event ID that is the last element in the Uri
+			long eventID = Long.parseLong(uri.getLastPathSegment());
+
+
+			// add 60 minute reminder for the event
+			if (settings.getBoolean("reminder", true)) {
+				ContentValues reminders = new ContentValues();
+				reminders.put(CalendarContract.Reminders.EVENT_ID, eventID);
+				reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
+				reminders.put(CalendarContract.Reminders.MINUTES, 60); //user pref
+
+				cr.insert(CalendarContract.Reminders.CONTENT_URI, reminders);
+			}
 
     } catch (Exception e) {
       Log.e("Calendar", e.getMessage(), e);

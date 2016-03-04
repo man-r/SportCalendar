@@ -26,7 +26,6 @@ public class SampleSchedulingService extends IntentService {
         super("SchedulingService");
     }
 
-    public static final String TAG = "Scheduling Demo";
     // An ID used to post the notification.
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;

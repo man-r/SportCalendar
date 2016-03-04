@@ -1,13 +1,57 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Hello World, MyMainActivity"
-    />
-</LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical">
 
+    <LinearLayout
+      android:layout_width="fill_parent"
+      android:orientation="vertical"
+      android:layout_height="fill_parent">
+
+      <TextView android:id="@+id/intro"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/intro_message"
+          android:textSize="23sp"
+          android:inputType="textMultiLine"
+          android:layout_gravity="center_vertical">
+      </TextView>
+
+      <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <TextView android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textSize="23sp"
+            android:inputType="textMultiLine"
+            android:layout_gravity="center_vertical">
+        </TextView>
+
+        <Button
+          android:id="@+id/settime"
+          android:layout_height="wrap_content"
+          android:text="Set"
+          android:layout_width="wrap_content">
+        </Button>
+
+      </LinearLayout>
+
+      <CheckBox
+        android:id="@+id/reminder"
+        android:layout_height="wrap_content"
+        android:text="1 hour reminder"
+        android:layout_width="fill_parent">
+      </CheckBox>
+      <Button
+        android:id="@+id/updatenow"
+        android:layout_height="wrap_content"
+        android:text="Update now"
+        android:layout_width="fill_parent">
+      </Button>
+    </LinearLayout>
+
+
+</ScrollView>
