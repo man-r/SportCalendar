@@ -39,9 +39,12 @@ public final class Manar {
 
     ArrayList<String> lines = new ArrayList<String>();
     try {
+      getCalID(act);
+      Log.d("manar", "before");
       lines = Manar.getUrlSource("http://m.kooora.com");
+      Log.d("manar", lines.toString());
     } catch (Exception e) {
-
+      Log.e("manar", "Exception", e);
     }
 
     for (int i = 0; i < lines.size(); i++) {
@@ -73,11 +76,11 @@ public final class Manar {
       String team2 = inputLine.substring(inputLine.indexOf("\"") + 1, inputLine.indexOf("\","));
 
       //a.append(inputLine);
-      Log.d("SC", "event = " + team1 + " vs. " + team2);
-      Log.d("SC", "notes = " + lege);
-      Log.d("SC", "timestamp = " + time + "(" + new Date(Long.parseLong(time)*1000) + ")");
-      Log.d("SC", "");
-      Log.d("SC", "");
+      // Log.d("manar", "event = " + team1 + " vs. " + team2);
+      // Log.d("manar", "notes = " + lege);
+      // Log.d("manar", "timestamp = " + time + "(" + new Date(Long.parseLong(time)*1000) + ")");
+      // Log.d("manar", "");
+      // Log.d("manar", "");
 
       String title = team1 + " vs. " + team2;
       long startTime = Long.parseLong(time)*1000;
@@ -94,6 +97,19 @@ public final class Manar {
 		return found;
   }
 
+  public static void getCalID(Context act) {
+    Uri calUri = CalendarContract.Calendars.CONTENT_URI.buildUpon().build();
+
+    
+    Cursor cur = act.getContentResolver().query(calUri, new String[]{
+      CalendarContract.Calendars._ID,
+      CalendarContract.Calendars.ACCOUNT_NAME,
+      CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+      CalendarContract.Calendars.OWNER_ACCOUNT}, null, null, null);
+    Log.d("manar", "getCalID");
+    Log.d("manar", DatabaseUtils.dumpCursorToString(cur));
+
+  }
   public static ArrayList<String> getUrlSource(String url) throws IOException {
     URL mURL = new URL(url);
     URLConnection mURLConnection = mURL.openConnection();
@@ -130,7 +146,7 @@ public final class Manar {
   }
 
   public static boolean eventAvailable(Context act, Uri eventsUri, String title, long startTime, long endTime, String description, String location, Long firstReminderMinutes, Long secondReminderMinutes) {
-    Log.d("Calendar", "eventAvailable:" + startTime + " - " + endTime);
+    Log.d("manar", "eventAvailable:" + startTime + " - " + endTime);
 		String[] projection = {
         CalendarContract.Events.TITLE,
 				CalendarContract.Events.DESCRIPTION,
@@ -147,16 +163,17 @@ public final class Manar {
 
     // Submit the query and get a Cursor object back.
     cur = cr.query(eventsUri, null, selection, selectionArgs, null);
-
-		Log.d("Calendar", DatabaseUtils.dumpCursorToString(cur));
+    Log.d("manar", "DatabaseUtils.dumpCursorToString(cur)");
+		Log.d("manar", DatabaseUtils.dumpCursorToString(cur));
 
     while (cur.moveToNext()) {
+      Log.d("manar", cur.getColumnIndex("calendar_id")+ "calendar_id");
 			if (cur.getString(cur.getColumnIndex("title")).equals(title) &&
 					cur.getString(cur.getColumnIndex("description")).equals(description) &&
 					cur.getLong(cur.getColumnIndex("dtstart")) == startTime &&
 					cur.getLong(cur.getColumnIndex("dtend")) == endTime) {
 
-						Log.d("Calendar", "found");
+						Log.d("manar", "found");
 				return true;
 			}
 
@@ -166,6 +183,7 @@ public final class Manar {
 
   public static boolean createEvent(Context act, Uri eventsUri, String title, long startTime, long endTime, String description,
                              String location, Long firstReminderMinutes, Long secondReminderMinutes) {
+    Log.d("manar" , "createEvent");
     try {
       ContentResolver cr = act.getContentResolver();
       ContentValues values = new ContentValues();
@@ -177,26 +195,30 @@ public final class Manar {
       values.put(CalendarContract.Events.TITLE, title);
       values.put(CalendarContract.Events.DESCRIPTION, description);
       values.put(CalendarContract.Events.HAS_ALARM, 1);
-      values.put(CalendarContract.Events.CALENDAR_ID, 1);
+      values.put(CalendarContract.Events.CALENDAR_ID, 5);
       values.put(CalendarContract.Events.EVENT_LOCATION, location);
       Uri uri = cr.insert(eventsUri, values);
 
 			// get the event ID that is the last element in the Uri
 			long eventID = Long.parseLong(uri.getLastPathSegment());
 
-
 			// add 60 minute reminder for the event
 			if (settings.getBoolean("reminder", true)) {
+        Log.d("manar" , "createEvent");
 				ContentValues reminders = new ContentValues();
-				reminders.put(CalendarContract.Reminders.EVENT_ID, eventID);
-				reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
-				reminders.put(CalendarContract.Reminders.MINUTES, 60); //user pref
-
+				Log.d("manar" , "createEvent");
+        reminders.put(CalendarContract.Reminders.EVENT_ID, eventID);
+				Log.d("manar" , "createEvent");
+        reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
+				Log.d("manar" , "createEvent");
+        reminders.put(CalendarContract.Reminders.MINUTES, 60); //user pref
+Log.d("manar" , "createEvent");
 				cr.insert(CalendarContract.Reminders.CONTENT_URI, reminders);
+        Log.d("manar" , "createEvent");
 			}
 
     } catch (Exception e) {
-      Log.e("Calendar", e.getMessage(), e);
+      Log.e("manar", e.getMessage(), e);
       return false;
     }
 

@@ -9,6 +9,8 @@ import android.support.v4.app.FragmentActivity;
 import android.widget.TimePicker;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
@@ -35,75 +37,103 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class MyMainActivity extends FragmentActivity {
-  public static final String PREFS_NAME = "MyPrefsFile";
+    public static final String TAG = "manar";
 
-  SampleAlarmReceiver alarm = new SampleAlarmReceiver();
+    public static final String PREFS_NAME = "MyPrefsFile";
+    public static final int GET_PERMISSION_REQUEST = 2;  // The request code
 
-  public static SharedPreferences settings;
+    SampleAlarmReceiver alarm = new SampleAlarmReceiver();
 
-  TextView intro;
-  TextView time;
-  Button settime;
-  Button updatenow;
-  CheckBox reminder;
+    public static SharedPreferences settings;
 
-  View.OnClickListener mOnClick = new View.OnClickListener() {
-    @Override
+    TextView intro;
+    TextView time;
+    Button settime;
+    Button updatenow;
+    CheckBox reminder;
+
+    View.OnClickListener mOnClick = new View.OnClickListener() {
+        @Override
 		public void onClick(View v){
+            switch (v.getId()) {
+                case R.id.settime:
+                    DialogFragment newFragment = new TimePickerFragment();
+                    newFragment.show(getSupportFragmentManager(), "timePicker");
+                    break;
 
-			switch (v.getId()) {
-				case R.id.settime:
-          DialogFragment newFragment = new TimePickerFragment();
-          newFragment.show(getSupportFragmentManager(), "timePicker");
-          break;
-        case R.id.reminder:
-          SharedPreferences.Editor editor = settings.edit();
-          editor.putBoolean("reminder", reminder.isChecked());
-          // Commit the edits!
-          editor.commit();
-          break;
+                case R.id.reminder:
+                    SharedPreferences.Editor editor = settings.edit();
+                    editor.putBoolean("reminder", reminder.isChecked());
+                    // Commit the edits!
+                    editor.commit();
+                    break;
 
-        case R.id.updatenow:
-        if(Manar.isNetworkAvailable(getApplicationContext())) {
-          Manar.getMatches(getApplicationContext());
+                case R.id.updatenow:
+                    if(Manar.isNetworkAvailable(getApplicationContext())) {
+                        Manar.getMatches(getApplicationContext());
+                    }
+            }
         }
-			}
-    }
-  };
+    };
 
-  SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChange = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChange = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key) {
+            updateUI();
+        }
+    };
+  
     @Override
-    public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key) {
-      updateUI();
+    protected void onCreate(Bundle savedInstanceState) {
+      Log.d(TAG,"onActivityResult");
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
 
+        Context context = getApplicationContext();
+        Intent intent = new Intent(context, GetPermission.class);
+        startActivityForResult(intent, GET_PERMISSION_REQUEST);
     }
-  };
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.main);
 
-      settings = getSharedPreferences(PREFS_NAME, 0);
-      settings.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChange);
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        Log.d(TAG,"onActivityResult");
+        if (requestCode == GET_PERMISSION_REQUEST) {
+            if(resultCode == RESULT_OK){
+                String result=data.getStringExtra("json");
+                Log.d(TAG, "result " + result);
 
-      Typeface font = Typeface.createFromAsset(getAssets(), "MCSBadrS_Unormal.ttf");
+                if (result.equals("all permission granted")) {
+                    settings = getSharedPreferences(PREFS_NAME, 0);
+                    settings.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChange);
 
-      intro = (TextView) findViewById(R.id.intro);
-      time = (TextView) findViewById(R.id.time);
-      settime = (Button) findViewById(R.id.settime);
-      updatenow = (Button) findViewById(R.id.updatenow);
-      reminder = (CheckBox) findViewById(R.id.reminder);
+                    Typeface font = Typeface.createFromAsset(getAssets(), "MCSBadrS_Unormal.ttf");
+                    intro = (TextView) findViewById(R.id.intro);
+                    time = (TextView) findViewById(R.id.time);
+                    settime = (Button) findViewById(R.id.settime);
+                    updatenow = (Button) findViewById(R.id.updatenow);
+                    reminder = (CheckBox) findViewById(R.id.reminder);
 
-      intro.setTypeface(font);
-      time.setTypeface(font);
+                    intro.setTypeface(font);
+                    time.setTypeface(font);
 
-      settime.setOnClickListener(mOnClick);
-      updatenow.setOnClickListener(mOnClick);
-      reminder.setOnClickListener(mOnClick);
+                    settime.setOnClickListener(mOnClick);
+                    updatenow.setOnClickListener(mOnClick);
+                    reminder.setOnClickListener(mOnClick);
 
-      updateUI();
-
-  }
+                    updateUI();
+                  
+                } else {
+                    Log.d(TAG, "RESULT_OK " + RESULT_OK);
+                    Log.d(TAG, "RESULT_CANCELED " + RESULT_CANCELED);
+                    Log.d(TAG, "resultCode " + resultCode);
+                    finish();
+                }
+    
+                if (resultCode == RESULT_CANCELED) {
+                    finish();
+                }
+            }
+        }
+    }
 
   private void updateUI() {
     // Restore preferences
