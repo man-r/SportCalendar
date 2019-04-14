@@ -36,7 +36,7 @@ public final class Manar {
 
         ArrayList<String> lines = new ArrayList<String>();
         try {
-            getCalID(act);
+            //getCalID(act);
             //Log.d("manar", "before");
             lines = Manar.getUrlSource("http://m.kooora.com");
             //Log.d("manar", lines.toString());

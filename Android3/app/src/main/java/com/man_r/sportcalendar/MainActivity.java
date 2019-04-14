@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.DateFormat;
@@ -62,6 +64,7 @@ public class MainActivity extends FragmentActivity  {
 
                 case R.id.updatenow:
                     if(Manar.isNetworkAvailable(getApplicationContext())) {
+                        Log.d(TAG,"isNetworkAvailable");
                         Manar.getMatches(getApplicationContext());
                     }
             }
@@ -79,6 +82,10 @@ public class MainActivity extends FragmentActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (Build.VERSION.SDK_INT > 8) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         Log.d(TAG,"onCreate");
 
         Context context = getApplicationContext();
