@@ -21,6 +21,7 @@ import java.util.TimeZone;
 
 public final class Manar {
 
+    public static final String TAG = "manar";
     public static final String PREFS_NAME = "MyPrefsFile";
     public static SharedPreferences settings;
 
@@ -29,6 +30,7 @@ public final class Manar {
     }
 
     public static boolean getMatches(Context act) {
+        Log.d(TAG,"getMatches");
         settings = act.getSharedPreferences(PREFS_NAME, 0);
 
         boolean found = false;
@@ -37,11 +39,11 @@ public final class Manar {
         ArrayList<String> lines = new ArrayList<String>();
         try {
             //getCalID(act);
-            //Log.d("manar", "before");
+            Log.d("manar", "before");
             lines = Manar.getUrlSource("http://m.kooora.com");
-            //Log.d("manar", lines.toString());
+            Log.d("manar", lines.toString());
         } catch (Exception e) {
-            Log.e("manar", "Exception", e);
+            Log.e(TAG, "Exception", e);
         }
 
         for (int i = 0; i < lines.size(); i++) {
@@ -225,6 +227,7 @@ public final class Manar {
     }
 
     public static boolean isNetworkAvailable(Context context) {
+        Log.d("manar", "isNetworkAvailable");
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();

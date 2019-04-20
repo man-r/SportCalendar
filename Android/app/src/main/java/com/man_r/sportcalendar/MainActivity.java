@@ -1,12 +1,13 @@
 package com.man_r.sportcalendar;
 
 import android.accounts.AccountManager;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -19,6 +20,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import java.util.Calendar;
 
 
 public class MainActivity extends FragmentActivity  {
@@ -124,6 +128,7 @@ public class MainActivity extends FragmentActivity  {
                     updatenow.setOnClickListener(mOnClick);
                     reminder.setOnClickListener(mOnClick);
 
+                    setAlarm();
                     updateUI();
 
                 } else {
@@ -143,13 +148,47 @@ public class MainActivity extends FragmentActivity  {
         }
     }
 
+    private void setAlarm() {
+        Log.d(TAG,"setAlarm");
+        Calendar calendar = Calendar.getInstance();
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            calendar.set(calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    settings.getInt("hourofDay", 9),
+                    settings.getInt("minute", 0),
+                    0);
+        } else {
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(
+                    Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    settings.getInt("hourofDay", 9),
+                    settings.getInt("minute", 0),
+                    0);
+        }
+
+        //getting the alarm manager
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        //creating a new intent specifying the broadcast receiver
+        Intent intent = new Intent(this, MyReceiver.class);
+
+        //creating a pending intent using the intent
+        PendingIntent pendingIntenti = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        //setting the repeating alarm that will be fired every day
+        am.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+        Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
+    }
+
     private void updateUI() {
         // Restore preferences
 
         time.setText(String.format("%02d", settings.getInt("hourofDay", 9)) + " : " +  String.format("%02d", settings.getInt("minute", 11)));
         reminder.setChecked(settings.getBoolean("reminder", true));
 
-        //alarm.setAlarm(this);
+
+        setAlarm();
     }
 
     public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
