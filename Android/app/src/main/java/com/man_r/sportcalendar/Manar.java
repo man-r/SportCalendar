@@ -1,14 +1,21 @@
 package com.man_r.sportcalendar;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.CalendarContract;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -31,6 +38,7 @@ public final class Manar {
 
     public static boolean getMatches(Context act) {
         Log.d(TAG,"getMatches");
+        createNotifiation(act, "manar");
         settings = act.getSharedPreferences(PREFS_NAME, 0);
 
         boolean found = false;
@@ -86,6 +94,7 @@ public final class Manar {
             found = addEvent(act, CalendarContract.Events.CONTENT_URI, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
         }
 
+        updateNotifiation(act, "manar");
         return found;
     }
 
@@ -224,6 +233,66 @@ public final class Manar {
         }
 
         return true;
+    }
+
+    public static void createNotifiation(Context context, String CHANNEL_ID) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Sport Calendar";
+            String description = "Sport Calendar Notification";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("manar", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,CHANNEL_ID)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle("Sport Calendar")
+                .setContentText("Updating calendar")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(7, builder.build());
+
+    }
+
+    public static void updateNotifiation(Context context, String CHANNEL_ID) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,CHANNEL_ID)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle("Sport Calendar")
+                .setContentText("Calendar updated")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(7, builder.build());
+
     }
 
     public static boolean isNetworkAvailable(Context context) {
