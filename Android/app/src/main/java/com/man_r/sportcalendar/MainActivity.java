@@ -16,8 +16,11 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -41,7 +44,7 @@ public class MainActivity extends FragmentActivity  {
     TextView time;
     TextView email;
     Button settime;
-    Button setemail;
+    Spinner spinner;
     Button updatenow;
     CheckBox reminder;
 
@@ -52,11 +55,6 @@ public class MainActivity extends FragmentActivity  {
                 case R.id.settime:
                     DialogFragment newFragment = new TimePickerFragment();
                     newFragment.show(getSupportFragmentManager(), "timePicker");
-                    break;
-
-                case R.id.setemail:
-//                    Intent intent = AccountPicker.newChooseAccountIntent(null, null,new String[] { GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE }, false, null, null, null, null);
-//                    startActivityForResult(intent, REQUEST_CODE_EMAIL);
                     break;
 
                 case R.id.reminder:
@@ -115,19 +113,46 @@ public class MainActivity extends FragmentActivity  {
                     time = (TextView) findViewById(R.id.time);
                     email = (TextView) findViewById(R.id.email);
                     settime = (Button) findViewById(R.id.settime);
-                    setemail = (Button) findViewById(R.id.setemail);
+                    spinner = (Spinner) findViewById(R.id.spinner1);
                     updatenow = (Button) findViewById(R.id.updatenow);
                     reminder = (CheckBox) findViewById(R.id.reminder);
 
+                    ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_item, Manar.getCalendars(getApplicationContext()));
+                    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(dataAdapter);
+
+                    spinner.setSelection(settings.getInt("calendarposition",1));
 //                    intro.setTypeface(font);
 //                    time.setTypeface(font);
 //                    email.setTypeface(font);
 
                     settime.setOnClickListener(mOnClick);
-                    setemail.setOnClickListener(mOnClick);
                     updatenow.setOnClickListener(mOnClick);
                     reminder.setOnClickListener(mOnClick);
 
+                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                            Object item = parent.getItemAtPosition(position);
+                            if (item != null) {
+                                Log.d(TAG, item.toString().substring(0,1));
+                                int calendarid = Integer.parseInt(item.toString().substring(0,1));
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putInt("calendarposition", position);
+                                editor.putInt("calendarid", calendarid);
+
+                                // Commit the edits!
+                                editor.commit();
+                            }
+
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+
+                        }
+                    });
                     setAlarm();
                     updateUI();
 

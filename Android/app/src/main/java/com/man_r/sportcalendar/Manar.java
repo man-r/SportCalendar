@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CalendarContract;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -24,6 +25,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 public final class Manar {
@@ -48,7 +50,7 @@ public final class Manar {
         try {
             //getCalID(act);
             Log.d("manar", "before");
-            lines = Manar.getUrlSource("http://m.kooora.com");
+            lines = Manar.getUrlSource("https://m.kooora.com");
             Log.d("manar", lines.toString());
         } catch (Exception e) {
             Log.e(TAG, "Exception", e);
@@ -102,12 +104,6 @@ public final class Manar {
         Uri calUri = CalendarContract.Calendars.CONTENT_URI.buildUpon().build();
 
 
-        // Cursor cur = act.getContentResolver().query(calUri, new String[]{
-        // CalendarContract.Calendars._ID,
-        // CalendarContract.Calendars.ACCOUNT_NAME,
-        // CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
-        // CalendarContract.Calendars.OWNER_ACCOUNT,
-        // CalendarContract.Calendars.ACCOUNT_TYPE}, null, null, null);
         Cursor cur = act.getContentResolver().query(calUri, null, null, null, null);
         Log.d("manar", "getCalID");
         //Log.d("manar", DatabaseUtils.dumpCursorToString(cur));
@@ -155,6 +151,8 @@ public final class Manar {
     public static boolean addEvent(Context act, Uri eventsUri, String title, long startTime, long endTime, String description, String location, Long firstReminderMinutes, Long secondReminderMinutes) {
         if (!eventAvailable(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes)) {
             createEvent(act, eventsUri, title, startTime, endTime, description, location, firstReminderMinutes, secondReminderMinutes);
+        } else {
+            Log.d(TAG, "Event Available");
         }
         return true;
     }
@@ -165,7 +163,8 @@ public final class Manar {
                 CalendarContract.Events.TITLE,
                 CalendarContract.Events.DESCRIPTION,
                 CalendarContract.Events.DTSTART,
-                CalendarContract.Events.DTEND
+                CalendarContract.Events.DTEND,
+                CalendarContract.Events.CALENDAR_ID,
         };
 
         // Run query
@@ -185,7 +184,8 @@ public final class Manar {
             if (cur.getString(cur.getColumnIndex("title")).equals(title) &&
                     cur.getString(cur.getColumnIndex("description")).equals(description) &&
                     cur.getLong(cur.getColumnIndex("dtstart")) == startTime &&
-                    cur.getLong(cur.getColumnIndex("dtend")) == endTime) {
+                    cur.getLong(cur.getColumnIndex("dtend")) == endTime &&
+                    cur.getLong(cur.getColumnIndex("CALENDAR_ID")) == settings.getInt("calendarid",1)) {
 
                 //Log.d("manar", "found");
                 return true;
@@ -209,9 +209,10 @@ public final class Manar {
             values.put(CalendarContract.Events.TITLE, title);
             values.put(CalendarContract.Events.DESCRIPTION, description);
             values.put(CalendarContract.Events.HAS_ALARM, 1);
-            values.put(CalendarContract.Events.CALENDAR_ID, 5);
+            values.put(CalendarContract.Events.CALENDAR_ID, settings.getInt("calendarid",1));
             values.put(CalendarContract.Events.EVENT_LOCATION, location);
             Uri uri = cr.insert(eventsUri, values);
+            Log.d(TAG, uri.getPath());
 
             // get the event ID that is the last element in the Uri
             long eventID = Long.parseLong(uri.getLastPathSegment());
@@ -300,5 +301,29 @@ public final class Manar {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    public static List<String> getCalendars(Context ctx) {
+
+        List<String> result = new ArrayList();
+
+        final String[] EVENT_PROJECTION = new String[]{
+                CalendarContract.Calendars._ID,
+                CalendarContract.Calendars.NAME,
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
+        };
+
+        final ContentResolver cr = ctx.getContentResolver();
+        final Uri uri = CalendarContract.Calendars.CONTENT_URI;
+        Cursor cur = cr.query(uri, EVENT_PROJECTION, null, null, null);
+
+        while (cur.moveToNext()) {
+            String item = cur.getString(cur.getColumnIndex(CalendarContract.Calendars._ID)) + " - " + cur.getString(cur.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME));
+            result.add(item);
+        }
+        cur.close();
+        return result;
     }
 }
