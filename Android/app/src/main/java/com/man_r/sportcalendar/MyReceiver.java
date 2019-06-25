@@ -19,24 +19,7 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG,"onReceive");
-        settings = context.getSharedPreferences(PREFS_NAME, 0);
-        Calendar calendar = Calendar.getInstance();
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            calendar.set(calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    settings.getInt("hourofDay", 9),
-                    settings.getInt("minute", 0),
-                    0);
-        } else {
-            calendar.set(calendar.get(Calendar.YEAR), calendar.get(
-                    Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    settings.getInt("hourofDay", 9),
-                    settings.getInt("minute", 0),
-                    0);
-        }
-        Log.d(TAG,"calendar");
+        Manar.createNotifiation(context, "manar");
         // an Intent broadcast.
         if(Manar.isNetworkAvailable(context)) {
             Log.d(TAG,"MyReciever isNetworkAvailable");

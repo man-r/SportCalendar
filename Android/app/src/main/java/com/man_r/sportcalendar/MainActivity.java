@@ -176,21 +176,12 @@ public class MainActivity extends FragmentActivity  {
     private void setAlarm() {
         Log.d(TAG,"setAlarm");
         Calendar calendar = Calendar.getInstance();
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            calendar.set(calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    settings.getInt("hourofDay", 9),
-                    settings.getInt("minute", 0),
-                    0);
-        } else {
-            calendar.set(calendar.get(Calendar.YEAR), calendar.get(
-                    Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    settings.getInt("hourofDay", 9),
-                    settings.getInt("minute", 0),
-                    0);
-        }
+        calendar.set(calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH),
+            settings.getInt("hourofDay", 17),
+            settings.getInt("minute", 0),
+            0);
 
         //getting the alarm manager
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -202,7 +193,12 @@ public class MainActivity extends FragmentActivity  {
         PendingIntent pendingIntenti = PendingIntent.getBroadcast(this, 0, intent, 0);
 
         //setting the repeating alarm that will be fired every day
-        am.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+        } else {
+            am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+        }
+
         Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
     }
 
