@@ -19,10 +19,12 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG,"onReceive");
-        Manar.createNotifiation(context, "manar");
+        Manar.createNotifiation(context, "manar", "onRecieve");
         // an Intent broadcast.
         if(Manar.isNetworkAvailable(context)) {
             Log.d(TAG,"MyReciever isNetworkAvailable");
+
+            Manar.createNotifiation(context, "manar", "MyReciever isNetworkAvailable");
             Manar.getMatches(context);
         }
     }

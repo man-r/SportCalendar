@@ -40,7 +40,7 @@ public final class Manar {
 
     public static boolean getMatches(Context act) {
         Log.d(TAG,"getMatches");
-        createNotifiation(act, "manar");
+        createNotifiation(act, "manar","Updating calendar");
         settings = act.getSharedPreferences(PREFS_NAME, 0);
 
         boolean found = false;
@@ -236,7 +236,7 @@ public final class Manar {
         return true;
     }
 
-    public static void createNotifiation(Context context, String CHANNEL_ID) {
+    public static void createNotifiation(Context context, String CHANNEL_ID, String contentText) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -260,7 +260,7 @@ public final class Manar {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,CHANNEL_ID)
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle("Sport Calendar")
-                .setContentText("Updating calendar")
+                .setContentText(contentText)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
