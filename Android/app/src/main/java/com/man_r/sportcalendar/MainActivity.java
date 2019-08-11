@@ -195,9 +195,9 @@ public class MainActivity extends FragmentActivity  {
 
         //setting the repeating alarm that will be fired every day
         if (android.os.Build.VERSION.SDK_INT >= 23) {
-            am.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntenti);
         } else {
-            am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntenti);
+            am.setExact(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntenti);
         }
 
         Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
