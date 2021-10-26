@@ -233,7 +233,7 @@ strong {
   font-family: bootstrap-icons;
   display: inline-block;
   margin-left: 10px;
-  color: var(--primary-color);
+  color: var(--primary-color);/*لون الدائره*/
   opacity: 0;
   -webkit-transition: opacity 0.3s, -webkit-transform 0.3s;
   -moz-transition: opacity 0.3s, -moz-transform 0.3s;
@@ -498,19 +498,19 @@ strong {
   right: 0;
   z-index: -1;
   transition: width .6s cubic-bezier(.25,.8,.25,1) 0s;
-  background: #198754;/* tabs of full interior design photos*/ 
+  background: #778b3f;/* tabs of full interior design photos*/ 
 }
 
 .news-image-hover-warning::after {
-  background: #ffc107;/* tabs of full interior design photos*/
+  background: #0aaa8f;/* tabs of full interior design photos*/
 }
 
 .news-image-hover-primary::after {
-  background: #0d6efd;/* tabs of full interior design photos*/
+  background: #944774;/* tabs of full interior design photos*/
 }
 
 .news-image-hover-success::after {
-  background: #198754;/* tabs of full interior design photos*/
+  background: #44b9aa;/* tabs of full interior design photos*/
 }
 
 .news-image-hover:hover::after {
